@@ -96,8 +96,8 @@ func writeToUDP(addr *net.UDPAddr, i int) {
 func sendTo(addr *net.UDPAddr, i int) {
 	log.Printf("Start `sendTo` test with %d iteration\n", i)
 
-	laddr := &syscall.SockaddrInet4{Port: local_port, Addr: [4]byte{net.IPv4zero[0], net.IPv4zero[1], net.IPv4zero[2], net.IPv4zero[3]}}
-	raddr := &syscall.SockaddrInet4{Port: addr.Port, Addr: [4]byte{addr.IP[0], addr.IP[1], addr.IP[2], addr.IP[3]}}
+	laddr := UDPAddrToSockaddr(&net.UDPAddr{Port: local_port, IP: net.IPv4zero})
+	raddr := UDPAddrToSockaddr(addr)
 
 	fd := connectUDP(laddr, raddr)
 
@@ -111,8 +111,8 @@ func sendTo(addr *net.UDPAddr, i int) {
 func sendMsg(addr *net.UDPAddr, i int) {
 	log.Printf("Start `sendMsg` test with %d iteration\n", i)
 
-	laddr := &syscall.SockaddrInet4{Port: local_port, Addr: [4]byte{net.IPv4zero[0], net.IPv4zero[1], net.IPv4zero[2], net.IPv4zero[3]}}
-	raddr := &syscall.SockaddrInet4{Port: addr.Port, Addr: [4]byte{addr.IP[0], addr.IP[1], addr.IP[2], addr.IP[3]}}
+	laddr := UDPAddrToSockaddr(&net.UDPAddr{Port: local_port, IP: net.IPv4zero})
+	raddr := UDPAddrToSockaddr(addr)
 
 	fd := connectUDP(laddr, raddr)
 
@@ -132,8 +132,8 @@ func sendMMsg(addr *net.UDPAddr, i int) {
 	i = i / chunk_sz
 	log.Printf("Start `sendMMsg` test with %d iteration\n", i)
 
-	laddr := &syscall.SockaddrInet4{Port: local_port, Addr: [4]byte{net.IPv4zero[0], net.IPv4zero[1], net.IPv4zero[2], net.IPv4zero[3]}}
-	raddr := &syscall.SockaddrInet4{Port: addr.Port, Addr: [4]byte{addr.IP[0], addr.IP[1], addr.IP[2], addr.IP[3]}}
+	laddr := UDPAddrToSockaddr(&net.UDPAddr{Port: local_port, IP: net.IPv4zero})
+	raddr := UDPAddrToSockaddr(addr)
 
 	fd := connectUDP(laddr, raddr)
 
@@ -163,6 +163,11 @@ func sendMMsg(addr *net.UDPAddr, i int) {
 			panic("error on sendmmsg")
 		}
 	}
+}
+
+func UDPAddrToSockaddr(addr *net.UDPAddr) *syscall.SockaddrInet4 {
+	raddr := &syscall.SockaddrInet4{Port: addr.Port, Addr: [4]byte{addr.IP[12], addr.IP[13], addr.IP[14], addr.IP[15]}}
+	return raddr
 }
 
 func connectUDP(laddr, raddr syscall.Sockaddr) int {
